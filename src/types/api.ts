@@ -14,7 +14,13 @@
 // - data: T — the actual response payload (generic!)
 // - success: boolean
 // - message: string (optional) — success or error message
-//
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+}
+
+
 // LEARNING: Generics let you create reusable type containers.
 // ApiResponse<Person> means { data: Person, success: boolean, ... }
 // ApiResponse<Ministry[]> means { data: Ministry[], success: boolean, ... }
@@ -26,7 +32,13 @@
 // - page: number — current page
 // - pageSize: number — items per page
 // - totalPages: number — calculated total pages
-//
+export interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
 // LEARNING: This is the standard pagination envelope. Every paginated
 // endpoint returns this same structure, just with different item types.
 // PaginatedResponse<Person> for /directory
@@ -40,9 +52,15 @@
 //
 // LEARNING: Having a consistent error shape means your error handling
 // components can work with ANY endpoint's errors.
+export interface ApiError {
+  message: string;
+  code: string;
+  details?: Record<string, string[]>;
+}
 
 // TODO: Define a type called 'HttpMethod'
 // - 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 // TODO: Define a generic interface called 'FetchOptions<TBody>'
 // - method: HttpMethod
@@ -52,6 +70,12 @@
 //
 // LEARNING: This typed fetch wrapper means you can't accidentally pass
 // a number where a string is expected in headers, or forget the method.
+export interface FetchOptions<TBody> {
+  method: HttpMethod;
+  body?: TBody;
+  headers?: Record<string, string>;
+  params?: Record<string, string | number | boolean | undefined>;
+}
 
 // TODO: Define a type guard function signature called 'isApiError'
 // - Parameters: (value: unknown) => value is ApiError
@@ -59,3 +83,4 @@
 //   'value is ApiError' is a type predicate — it tells TypeScript that
 //   if this function returns true, the value IS an ApiError.
 //   You'll implement this in lib/utils.ts
+export function isApiError(value: unknown): value is ApiError { return true; } 

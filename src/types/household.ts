@@ -10,8 +10,11 @@
 // - Understand intersection types with '&'
 // =============================================================================
 
+import { Person } from "./person";
+
 // TODO: Define a union type called 'HouseholdRole'
 // - 'head' | 'spouse' | 'child' | 'other'
+export type HouseholdRole = "head" | "spouse" | "child" | "other";
 
 // TODO: Define an interface called 'Household'
 // - id: number
@@ -22,6 +25,16 @@
 // - postalCode: string (optional)
 // - createdAt: string
 // - updatedAt: string
+export interface Household {
+  id: number;
+  name: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  postalCode?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 // TODO: Define an interface called 'HouseholdMember'
 // - id: number
@@ -33,6 +46,14 @@
 //
 // LEARNING: This shows composition — a HouseholdMember contains a full Person.
 // The API returns nested/joined data, and your types should reflect that.
+export interface HouseholdMember {
+  id: number;
+  householdId: number;
+  personId: number;
+  role: HouseholdRole;
+  isPrimaryHousehold: boolean;
+  person: Person;
+}
 
 // TODO: Define an interface called 'HouseholdWithMembers'
 // - Use intersection: Household & { members: HouseholdMember[] }
@@ -40,3 +61,4 @@
 // - LEARNING: Intersection types ('&') combine two types into one.
 //   This is useful when an API endpoint returns an entity with related data.
 //   Alternative approach: extend the interface with 'extends' keyword.
+export type HouseholdWithMembers = Household & { members: HouseholdMember[] };

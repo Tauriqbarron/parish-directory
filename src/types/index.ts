@@ -20,3 +20,10 @@
 // export * from './roster'
 // export * from './dashboard'
 // export * from './api'
+export * from './person';
+export * from './household';
+export * from './sacrament';
+export * from './ministry';
+export * from './roster';
+export * from './dashboard';
+export * from './api';

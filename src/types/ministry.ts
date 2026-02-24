@@ -74,13 +74,20 @@ export interface MinistryMember {
 // LEARNING: 'extends' is the OOP way to compose interfaces. Compare this
 // with the intersection approach in household.ts. Both work, but 'extends'
 // gives better error messages and is more readable for clear hierarchies.
+export interface MinistryWithMembers extends Ministry {
+  members: MinistryMember[];
+  memberCount: number;
+}
+
 
 // TODO: Define an interface called 'CreateMinistryInput'
 // - Use Omit<Ministry, 'id' | 'createdAt' | 'updatedAt'>
 // - This is what the POST /api/ministries endpoint accepts
+export type CreateMinistryInput = Omit<Ministry, 'id' | 'createdAt' | 'updatedAt'>;
 
 // TODO: Define an interface called 'UpdateMinistryInput'
 // - Use Partial<CreateMinistryInput>
 // - LEARNING: Partial<T> makes ALL properties optional. This is perfect
 //   for PATCH/PUT operations where you only send changed fields.
 //   Partial<Omit<...>> is a very common pattern for update DTOs.
+export type UpdateMinistryInput = Partial<CreateMinistryInput>;

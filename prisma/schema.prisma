@@ -1,0 +1,90 @@
+// =============================================================================
+// PRISMA SCHEMA
+// =============================================================================
+// Defines the database models for ministry-specific data.
+// These tables are ADDED to the existing Parish Database PostgreSQL instance.
+//
+// LEARNING GOALS:
+// - Prisma schema language (models, relations, enums)
+// - Understanding how Prisma generates TypeScript types from the schema
+// - Database migrations with Prisma
+// - Enum types at the database level
+// =============================================================================
+
+// TODO: Configure the datasource
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")  // reads from .env file
+// }
+
+// TODO: Configure the Prisma client generator
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// TODO: Define enum MinistryStatus
+// - ACTIVE
+// - INACTIVE
+// - SEASONAL
+// LEARNING: Prisma enums map to PostgreSQL enum types.
+// They constrain the database column to only these values.
+
+// TODO: Define enum MemberRole
+// - LEADER
+// - COORDINATOR
+// - MEMBER
+
+// TODO: Define the Ministry model
+// model Ministry {
+//   id               String          @id @default(uuid())
+//   name             String
+//   description      String?         // ? means nullable
+//   status           MinistryStatus  @default(ACTIVE)
+//   meetingDay       String?         @map("meeting_day")
+//   meetingTime      String?         @map("meeting_time")
+//   meetingLocation  String?         @map("meeting_location")
+//   maxMembers       Int?            @map("max_members")
+//   createdAt        DateTime        @default(now()) @map("created_at")
+//   updatedAt        DateTime        @updatedAt @map("updated_at")
+//   members          MinistryMember[]
+//   rosterEntries    RosterEntry[]
+//   @@map("ministries")              // table name in PostgreSQL
+// }
+// LEARNING: @map renames the column in the database while keeping the
+// camelCase name in your TypeScript code. This follows the convention
+// of snake_case in SQL and camelCase in application code.
+
+// TODO: Define the MinistryMember model
+// model MinistryMember {
+//   id          String      @id @default(uuid())
+//   ministryId  String      @map("ministry_id")
+//   personId    Int         @map("person_id")
+//                           // NOTE: No @relation to Person — it's in a different schema/API
+//   role        MemberRole  @default(MEMBER)
+//   joinedAt    DateTime    @default(now()) @map("joined_at")
+//   ministry    Ministry    @relation(fields: [ministryId], references: [id])
+//   @@unique([ministryId, personId])  // prevent duplicate memberships
+//   @@map("ministry_members")
+// }
+// LEARNING: @@unique creates a compound unique constraint.
+// A person can only be in a ministry once. The database enforces this.
+
+// TODO: Define the RosterEntry model
+// - id: String UUID
+// - ministryId: String FK to Ministry
+// - personId: Int (references FastAPI person)
+// - date: DateTime
+// - serviceTime: String (store as string, validate in application)
+// - notes: String? (optional)
+// - createdAt, updatedAt
+// - Relations: ministry Ministry
+// - @@unique([ministryId, personId, date, serviceTime]) — prevent double-booking
+// - @@map("roster_entries")
+
+// TODO: Define the ActivityLog model (for recent activity feed)
+// - id: String UUID
+// - type: String — 'member_added', 'roster_created', etc.
+// - description: String
+// - relatedEntityId: String
+// - timestamp: DateTime @default(now())
+// - @@map("activity_log")

@@ -75,6 +75,8 @@ export default function Button({
     disabled,
     ...rest
 }: ButtonProps) {
+    const baseStyles = 'inline-flex items-center justify-center rounded focus:outline-none transition-colors duration-200';
+
     const variantClasses = {
         primary: 'bg-blue-600 text-white hover:bg-blue-700',
         secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300',
@@ -89,7 +91,7 @@ export default function Button({
     };
 
     const combinedClassName = cn(
-        'inline-flex items-center justify-center rounded focus:outline-none transition-colors duration-200',
+        baseStyles,
         variantClasses[variant],
         sizeClasses[size],
         (disabled || isLoading) && 'opacity-50 cursor-not-allowed',

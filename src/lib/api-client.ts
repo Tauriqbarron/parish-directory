@@ -10,7 +10,8 @@
 // - Error handling patterns
 // - Building query strings from typed objects
 // =============================================================================
-
+import { ApiResponse, PaginatedResponse, FetchOptions, ApiError, isApiError } from "@/types";
+import { PARISH_API_URL } from "./constants";
 // TODO: Import types - ApiResponse, PaginatedResponse, FetchOptions, ApiError
 
 // TODO: Create a helper function called 'buildQueryString'
@@ -23,6 +24,15 @@
 //   4. Return empty string if no params
 // - LEARNING: URLSearchParams is a built-in browser API that handles
 //   URL encoding automatically. Always use it instead of manual string concat.
+export function buildQueryString(params: Record<string, string | number | boolean | undefined>): string {
+    const filteredParams = Object.entries(params).filter(([_, value]) => value !== undefined);
+    if (filteredParams.length === 0) return '';
+    const searchParams = new URLSearchParams();
+    filteredParams.forEach(([key, value]) => {
+        searchParams.append(key, String(value));
+    });
+    return `?${searchParams.toString()}`;
+}
 
 // TODO: Create an async generic function called 'fetchFromParishApi'
 // - Signature: async function fetchFromParishApi<T>(
@@ -43,22 +53,70 @@
 //   // result.data is typed as Person!
 //   const list = await fetchFromParishApi<Person[]>('/persons')
 //   // result.data is typed as Person[]!
+export async function fetchFromParishApi<T>(
+    endpoint: string,
+    options?: FetchOptions<unknown>
+): Promise<ApiResponse<T> | ApiError> {
+    try {
+        const query = options?.params ? buildQueryString(options.params) : '';
+        const url = new URL(endpoint, PARISH_API_URL);
+        url.search = query;
+
+        const response = await fetch(url.toString(), {
+            method: options?.method || 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(options?.headers || {}),
+            },
+            body: options?.body ? JSON.stringify(options.body) : undefined,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw {
+                message: errorData.message || 'Unknown error',
+                code: errorData.code || 'UNKNOWN_ERROR',
+                details: errorData.details || {},
+            };
+        }
+
+        const data = await response.json();
+        return { data, success: true };
+    } catch (error) {
+        if (isApiError(error)) {
+            return { data: null as T, success: false, message: error.message , error};
+        }
+        return { data: null as T, success: false, message: error instanceof Error ? error.message : String(error) };
+    }
+}
 
 // TODO: Create convenience functions that use fetchFromParishApi:
-//
 // async function get<T>(endpoint: string, params?: Record<string, ...>): Promise<ApiResponse<T>>
 //   - Calls fetchFromParishApi with method: 'GET' and the params
-//
+export async function get<T>(endpoint: string, params?: Record<string, string | number | boolean | undefined>): Promise<ApiResponse<T> | ApiError> {
+    return fetchFromParishApi<T>(endpoint, { method: 'GET', params });
+}
+
 // async function post<T, TBody>(endpoint: string, body: TBody): Promise<ApiResponse<T>>
 //   - Calls fetchFromParishApi with method: 'POST' and the body
-//
+export async function post<T, TBody>(endpoint: string, body: TBody): Promise<ApiResponse<T> | ApiError> {
+    return fetchFromParishApi<T>(endpoint, { method: 'POST', body });
+}
 // async function put<T, TBody>(endpoint: string, body: TBody): Promise<ApiResponse<T>>
 //   - Calls fetchFromParishApi with method: 'PUT' and the body
-//
+export async function put<T, TBody>(endpoint: string, body: TBody): Promise<ApiResponse<T> | ApiError> {
+    return fetchFromParishApi<T>(endpoint, { method: 'PUT', body });
+}
 // async function del<T>(endpoint: string): Promise<ApiResponse<T>>
 //   - Calls fetchFromParishApi with method: 'DELETE'
 //   - Named 'del' because 'delete' is a reserved word in JavaScript
-//
+export async function del<T>(endpoint: string): Promise<ApiResponse<T> | ApiError> {
+    return fetchFromParishApi<T>(endpoint, { method: 'DELETE' });
+}
+
+export async function getPaginated<T>(endpoint: string, params?: Record<string, string | number | boolean | undefined>): Promise<ApiResponse<PaginatedResponse<T>> | ApiError> {
+    return fetchFromParishApi<PaginatedResponse<T>>(endpoint, { method: 'GET', params });
+}
 // LEARNING: These convenience functions reduce boilerplate. Instead of
 // specifying method every time, callers just use get(), post(), etc.
 // The dual generics <T, TBody> let you type both the response AND request body.
@@ -68,3 +126,4 @@
 // - LEARNING: Exporting as a namespace object keeps imports clean:
 //   import { parishApi } from '@/lib/api-client'
 //   const result = await parishApi.get<Person[]>('/persons')
+export const parishApi = { get, post, put, del, getPaginated };

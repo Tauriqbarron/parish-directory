@@ -11,6 +11,7 @@
 // =============================================================================
 
 // TODO: Import PrismaClient from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
 // TODO: Declare a global variable for the Prisma instance
 // - In development, Next.js hot-reloads which creates new PrismaClient
@@ -22,6 +23,12 @@
 //     var prisma: PrismaClient | undefined
 //   }
 //
+declare global {
+  var prisma: PrismaClient | undefined;
+}
+
+
+
 // LEARNING: 'declare global' extends TypeScript's global scope.
 // This is type augmentation — you're telling TypeScript that the global
 // object now has a 'prisma' property. This pattern is specific to Next.js
@@ -33,6 +40,13 @@
 //   if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma
 //   export default prisma
 //
+
+const prisma = globalThis.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma;
+
+export default prisma;
+
 // LEARNING: The nullish coalescing operator (??) returns the right side
 // only if the left side is null or undefined. This means:
 // - First load: globalThis.prisma is undefined → create new PrismaClient

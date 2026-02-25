@@ -75,7 +75,8 @@ export default function Button({
     disabled,
     ...rest
 }: ButtonProps) {
-    const baseStyles = 'inline-flex items-center justify-center rounded focus:outline-none transition-colors duration-200';
+    const baseStyles =
+        'inline-flex items-center justify-center rounded focus:outline-none transition-colors duration-200';
 
     const variantClasses = {
         primary: 'bg-blue-600 text-white hover:bg-blue-700',
@@ -95,15 +96,11 @@ export default function Button({
         variantClasses[variant],
         sizeClasses[size],
         (disabled || isLoading) && 'opacity-50 cursor-not-allowed',
-        className
+        className,
     );
 
     return (
-        <button
-            className={combinedClassName}
-            disabled={disabled || isLoading}
-            {...rest}
-        >
+        <button className={combinedClassName} disabled={disabled || isLoading} {...rest}>
             {isLoading ? '...' : children}
         </button>
     );

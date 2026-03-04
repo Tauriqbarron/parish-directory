@@ -9,11 +9,20 @@
 // - React.useEffect cleanup
 // =============================================================================
 
+import { useState } from "react";
+
 // TODO: Define SearchBarProps interface
 // - onSearch: (query: string) => void — called with debounced search term
 // - placeholder: string (optional, default 'Search...')
 // - initialValue: string (optional, default '')
 // - debounceMs: number (optional, default 300)
+
+interface SearchBarProps {
+    onSearch: (query: string) => void;
+    placeholder?: string;
+    initialValue?: string;
+    debouceMS: number;
+}
 
 // TODO: Create the SearchBar component
 // - Logic:
@@ -28,3 +37,10 @@
 // With 300ms debounce, it waits until the user stops typing, then fires once.
 // This is a great example of why custom hooks exist — useDebounce encapsulates
 // the timer logic so SearchBar just uses it declaratively.
+
+
+export default function SearchBar({onSearch, placeholder='Search...', initialValue = '',debouceMS}: SearchBarProps){
+    const [inputValue, setInputValue] = useState(initialValue);
+    
+    
+}
